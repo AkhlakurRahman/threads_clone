@@ -20,6 +20,8 @@ import { ChangeEvent, useState } from 'react';
 import { Textarea } from '../ui/textarea';
 import { isBase64Image } from '@/lib/utils';
 import { useUploadThing } from '@/lib/uploadThing';
+import { updateUser } from '@/lib/actions/user.actions';
+import { usePathname, useRouter } from 'next/navigation';
 
 interface Props {
 	user: {
@@ -36,6 +38,10 @@ interface Props {
 export const AccountProfile = ({ user, buttonTitle }: Props) => {
 	const [files, setFiles] = useState<File[]>([]);
 	const { startUpload } = useUploadThing('media');
+	const router = useRouter();
+	const pathname = usePathname();
+
+	console.log(pathname);
 
 	const form = useForm({
 		resolver: zodResolver(UserValidation),
@@ -84,7 +90,20 @@ export const AccountProfile = ({ user, buttonTitle }: Props) => {
 			}
 		}
 
-		// !!! Update user profile
+		await updateUser({
+			userId: user.id,
+			username: values.username,
+			name: values.name,
+			image: values.profile_photo,
+			bio: values.bio,
+			path: pathname,
+		});
+
+		if (pathname === '/profile/edit') {
+			router.back();
+		} else {
+			router.push('/');
+		}
 	};
 
 	return (
@@ -129,6 +148,7 @@ export const AccountProfile = ({ user, buttonTitle }: Props) => {
 									}
 								/>
 							</FormControl>
+							<FormMessage />
 						</FormItem>
 					)}
 				/>
@@ -148,6 +168,7 @@ export const AccountProfile = ({ user, buttonTitle }: Props) => {
 									{...field}
 								/>
 							</FormControl>
+							<FormMessage />
 						</FormItem>
 					)}
 				/>
@@ -167,6 +188,7 @@ export const AccountProfile = ({ user, buttonTitle }: Props) => {
 									{...field}
 								/>
 							</FormControl>
+							<FormMessage />
 						</FormItem>
 					)}
 				/>
@@ -186,6 +208,7 @@ export const AccountProfile = ({ user, buttonTitle }: Props) => {
 									{...field}
 								/>
 							</FormControl>
+							<FormMessage />
 						</FormItem>
 					)}
 				/>
